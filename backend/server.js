@@ -86,26 +86,35 @@ app.get('/courses', async (req, res) => {
 });
 
 app.post('/add-to-cart', async (req, res) => {
-  const { username, courseName } = req.body;
+  const { username, courseCid } = req.body;
+
+  console.log('Received data:', req.body);
 
   try {
     const user = await prisma.user.findUnique({ where: { username } });
-    const course = await prisma.course.findUnique({ where: { name: courseName } });
-
-    if (!user || !course) {
-      return res.status(404).send('User or Course not found');
+    if (!user) {
+      console.log('User not found:', username);
+      return res.status(404).json({ error: 'User not found' });
     }
 
-    await prisma.courseCart.create({
+    const course = await prisma.course.findUnique({ where: { cid: courseCid } });
+    if (!course) {
+      console.log('Course not found:', courseCid);
+      return res.status(404).json({ error: 'Course not found' });
+    }
+
+    const newCourseCart = await prisma.courseCart.create({
       data: {
-        userId: user.id,
-        courseId: course.id
-      }
+        username: user.username,
+        courseCid: course.cid,
+      },
     });
 
-    res.status(200).send('Course added to cart');
+    console.log('Course added to cart:', newCourseCart);
+    res.status(201).json(newCourseCart);
   } catch (error) {
-    res.status(500).send('Error adding course to cart');
+    console.error('Error adding course to cart:', error);
+    res.status(500).json({ error: 'Error adding course to cart' });
   }
 });
 
@@ -130,6 +139,6 @@ app.get('/cart/:username', async (req, res) => {
   }
 });
 
-app.listen(3000, () => {
-  console.log('Server is running on port 3000');
+app.listen(5000, () => {
+  console.log('Server is running on port 5000');
 });

@@ -19,6 +19,7 @@ model User {
 
 model Course {
   id          String  @id @default(auto()) @map("_id") @db.ObjectId
+  cid         String  @unique
   name        String
   description String
   author      String
@@ -30,9 +31,9 @@ model Course {
 
 model CourseCart {
   id         String @id @default(auto()) @map("_id") @db.ObjectId
-  userId     String @db.ObjectId
-  courseId   String @db.ObjectId
+  courseCid  String @unique
+  username   String
 
-  username   User   @relation(fields: [userId], references: [id])
-  courseName Course @relation(fields: [courseId], references: [id])
+  user       User    @relation(fields: [username], references: [username])
+  course     Course  @relation(fields: [courseCid], references: [cid])
 }
