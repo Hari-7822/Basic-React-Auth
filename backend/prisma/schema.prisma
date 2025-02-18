@@ -1,0 +1,38 @@
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+  // previewFeatures = ["mongodb"]
+}
+
+model User {
+  id       String @id @default(auto()) @map("_id") @db.ObjectId
+  name     String
+  username String @unique
+  password String
+  email    String @unique
+  courseCarts CourseCart[]
+}
+
+model Course {
+  id          String  @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  description String
+  author      String
+  price       Float
+  duration    Int
+  notes       String?
+  courseCarts CourseCart[]
+}
+
+model CourseCart {
+  id         String @id @default(auto()) @map("_id") @db.ObjectId
+  userId     String @db.ObjectId
+  courseId   String @db.ObjectId
+
+  username   User   @relation(fields: [userId], references: [id])
+  courseName Course @relation(fields: [courseId], references: [id])
+}
